@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>AutoTestAI</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <!-- Libraries -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+
+  <!-- Application Configuration -->
+  <script>
+    window.APP_CONFIG = {
+      API_BASE_URL: "http://localhost:8000/api",
+      USE_MOCK: false,
+      MOCK_LATENCY_MS: 350
+    };
+  </script>
+
+  <!-- Data and API -->
+  <script src="js/mockData.js"></script>
+  <script src="js/mockDataExtra.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/animations.js"></script>
+
+  <!-- Shared UI Components -->
+  <script type="text/babel" data-presets="react" src="js/components.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/kit.jsx"></script>
+
+  <!-- Dark Theme Screens -->
+  <script type="text/babel" data-presets="react" src="js/screens/DarkDashboard.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/DarkUpload.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/DarkTestCases.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/DarkWorkflow.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/DarkScripts.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/DarkRuns.jsx"></script>
+
+  <!-- Light Theme Screens -->
+  <script type="text/babel" data-presets="react" src="js/screens/LightDashboard.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/LightCreate.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/LightFailure.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/LightRunner.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/LightWorkflow.jsx"></script>
+
+  <!-- Extension Screens -->
+  <script type="text/babel" data-presets="react" src="js/screens/Projects.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/Failures.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/BugReports.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/SelfHealing.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/Analytics.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/Settings.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/Help.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/AllRuns.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/LightLibrary.jsx"></script>
+
+  <!-- Authentication Screens -->
+  <script type="text/babel" data-presets="react" src="js/screens/Login.jsx"></script>
+  <script type="text/babel" data-presets="react" src="js/screens/Register.jsx"></script>
+
+  <!-- Main Application: Keep this last -->
+  <script type="text/babel" data-presets="react" src="js/app.jsx"></script>
+
+</body>
+</html>

@@ -6,6 +6,7 @@ from app.database.session import get_db
 from app.models.user import User
 from app.schemas.user import UserRegister, UserResponse, UserLogin
 from app.schemas.token import Token
+from app.api.v1.endpoints import dashboard
 from app.core.security import (
     hash_password,
     verify_password,

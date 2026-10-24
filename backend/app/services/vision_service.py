@@ -1,18 +1,27 @@
+
 import base64
 import json
 import requests
 from pathlib import Path
 
-
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "llava:7b"
 
 
-def encode_image(image_path: str) -> str:
-    """
-    Convert an image file to Base64.
-    """
+def vision_fallback(reason: str) -> dict:
+    return {
+        "application": "unknown",
+        "screen": "unknown",
+        "buttons": [],
+        "input_fields": [],
+        "ui_state": "Vision analysis unavailable",
+        "possible_action": "unknown",
+        "analysis_warning": reason
+    }
 
+
+def encode_image(image_path: str) -> str:
+    """Convert an image file to Base64."""
     with open(image_path, "rb") as image_file:
         return base64.b64encode(
             image_file.read()
@@ -23,9 +32,7 @@ def analyze_frame(
     image_path: str,
     ocr_text: list[str] | None = None
 ) -> dict:
-    """
-    Analyze a UI screenshot using Ollama + LLaVA.
-    """
+    """Analyze a UI screenshot using Ollama + LLaVA."""
 
     image_path = Path(image_path)
 
@@ -34,45 +41,29 @@ def analyze_frame(
             f"Image not found: {image_path}"
         )
 
-    image_base64 = encode_image(
-        str(image_path)
-    )
-
-    ocr_context = ""
-
-    if ocr_text:
-        ocr_context = "\n".join(ocr_text)
+    image_base64 = encode_image(str(image_path))
+    ocr_context = "\n".join(ocr_text) if ocr_text else ""
 
     prompt = f"""
 You are analyzing a screenshot from a software testing
 screen recording.
 
-IMPORTANT RULES:
-
-- The OCR text below was extracted directly from the screenshot.
-- Treat the OCR text as the primary source for visible text.
-- Do NOT invent another application or website.
-- Do NOT claim that Slack, Discord, WhatsApp, or another
-  application is visible unless supported by the screenshot
-  AND OCR text.
-- Do not invent buttons or input fields.
-- If something is uncertain, say "unknown".
+Treat the OCR text as the primary source for visible text.
+Do not invent applications, buttons, or input fields.
+If something is uncertain, say "unknown".
 
 OCR TEXT FROM THIS FRAME:
-
 {ocr_context}
 
-Using both the screenshot and OCR text, determine:
-
-1. The application or website if identifiable.
-2. The type of screen/page.
-3. Important controls visible.
-4. Input fields visible.
+Determine:
+1. Application or website, if identifiable.
+2. Screen or page type.
+3. Important visible controls.
+4. Visible input fields.
 5. Current UI state.
-6. The most likely user action associated with this state.
+6. Most likely user action associated with this state.
 
 Return ONLY valid JSON:
-
 {{
     "application": "",
     "screen": "",
@@ -90,47 +81,57 @@ Return ONLY valid JSON:
         "stream": False
     }
 
-    response = requests.post(
-        OLLAMA_URL,
-        json=payload,
-        timeout=180
-    )
-
-    response.raise_for_status()
-
-    result = response.json()
-
-    raw_response = result.get(
-        "response",
-        ""
-    ).strip()
-
-    # Try to parse normal JSON
     try:
-        return json.loads(raw_response)
+        response = requests.post(
+            OLLAMA_URL,
+            json=payload,
+            timeout=(10, 120)
+        )
+        response.raise_for_status()
+        result = response.json()
 
+    except requests.exceptions.Timeout:
+        return vision_fallback(
+            "LLaVA timed out while analyzing this frame."
+        )
+
+    except requests.exceptions.RequestException as exc:
+        return vision_fallback(
+            f"Ollama request failed: {type(exc).__name__}"
+        )
+
+    except ValueError:
+        return vision_fallback(
+            "Ollama returned an invalid response."
+        )
+
+    raw_response = result.get("response", "").strip()
+
+    try:
+        parsed = json.loads(raw_response)
+        return parsed if isinstance(parsed, dict) else vision_fallback(
+            "LLaVA returned JSON in an unexpected format."
+        )
     except json.JSONDecodeError:
         pass
 
-    # Remove Markdown JSON code fences
     cleaned_response = raw_response
 
     if cleaned_response.startswith("```json"):
-        cleaned_response = cleaned_response[len("```json"):]
-
+        cleaned_response = cleaned_response[len("```json"):].strip()
     elif cleaned_response.startswith("```"):
-        cleaned_response = cleaned_response[len("```"):]
+        cleaned_response = cleaned_response[len("```"):].strip()
 
     if cleaned_response.endswith("```"):
-        cleaned_response = cleaned_response[:-3]
+        cleaned_response = cleaned_response[:-3].strip()
 
-    cleaned_response = cleaned_response.strip()
-
-    # Try parsing cleaned JSON
     try:
-        return json.loads(cleaned_response)
-
+        parsed = json.loads(cleaned_response)
+        return parsed if isinstance(parsed, dict) else vision_fallback(
+            "LLaVA returned JSON in an unexpected format."
+        )
     except json.JSONDecodeError:
         return {
+            **vision_fallback("LLaVA returned invalid JSON."),
             "raw_response": raw_response
         }

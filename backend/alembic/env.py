@@ -27,6 +27,7 @@ from app.database.base import Base
 from app.models.user import User
 from app.models.project import Project
 from app.models.video import Video
+from app.models.test_case import TestCase
 
 target_metadata = Base.metadata
 # other values from the config, defined by the needs of env.py,

@@ -27,3 +27,11 @@ frontend/build/
 .idea/
 .DS_Store
 Thumbs.db
+# Node dependencies and build outputs
+autotestai-react/node_modules/
+autotestai-react/dist/
+autotestai-react/build/
+
+# Python test and temporary artifacts
+backend_patch/
+*.pyc
